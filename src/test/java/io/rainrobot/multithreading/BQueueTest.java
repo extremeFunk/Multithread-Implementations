@@ -17,9 +17,9 @@ public class BQueueTest {
 
         bq.add(1);
 
-        assertEquals(1, bq.poll().intValue());
+        assertEquals(1, bq.pop().intValue());
 
-        assertNull(bq.poll());
+        assertNull(bq.pop());
     }
 
     @Test
@@ -38,7 +38,7 @@ public class BQueueTest {
                 ex.execute(() -> bq.add(1));
             }
             for (int k = 0; k < 1; k++) {
-                ex.execute(() -> bq.remove());
+                ex.execute(() -> bq.pop());
             }
         }
         sleep(1000);
