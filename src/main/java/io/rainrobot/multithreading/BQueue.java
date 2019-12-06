@@ -19,33 +19,16 @@ public class BQueue <T extends Object> {
         }
     }
 
-    public boolean offer(T e) {
+    public T pop() {
         synchronized (this) {
-            return q.offer(e);
+            return q.size() != 0 ? q.poll() : null;
         }
     }
 
-    public T remove() {
-        synchronized (this) {
-            return q.remove();
-        }
-    }
-
-    public T poll() {
-        synchronized (this) {
-            return q.poll();
-        }
-    }
-
-    public T element() {
-        synchronized (this) {
-            return q.element();
-        }
-    }
 
     public T peek() {
         synchronized (this) {
-            return q.peek();
+            return q.size() != 0 ? q.peek() : null;
         }
     }
 
