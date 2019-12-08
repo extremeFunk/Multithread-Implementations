@@ -14,7 +14,7 @@ public class BQueue <T extends Object> {
         this.maxSize = maxSize;
     }
 
-    public synchronized boolean add(T e) {
+    public synchronized void add(T e) {
         while (q.size() == maxSize) {
             try {
                 maxLock.wait();
@@ -25,14 +25,15 @@ public class BQueue <T extends Object> {
                 }
             }
         }
-        return q.add(e);
+        q.add(e);
+        minLock.notify();
 
     }
 
     public synchronized T pop() {
         while (q.size() == 0) {
             try {
-                maxLock.wait();
+                minLock.wait();
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
                 if(q.size() == 0) {
@@ -40,7 +41,9 @@ public class BQueue <T extends Object> {
                 }
             }
         }
-        return q.poll();
+        T poll = q.poll();
+        maxLock.notify();
+        return poll;
     }
 
 
