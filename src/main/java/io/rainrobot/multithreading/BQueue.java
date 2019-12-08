@@ -1,40 +1,53 @@
 package io.rainrobot.multithreading;
 
-import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class BQueue <T extends Object> {
 
+    private Object maxLock = new Object();
+    private Object minLock = new Object();
+
+    private final int maxSize;
     private Queue<T> q;
 
-    public BQueue() {
-        synchronized (this) {
-            q = new ArrayDeque<>();
-        }
+    public BQueue(int maxSize) {
+        this.maxSize = maxSize;
     }
 
-    public boolean add(T e) {
-        synchronized (this) {
-            return q.add(e);
+    public synchronized void add(T e) {
+        while (q.size() == maxSize) {
+            try {
+                maxLock.wait();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+                if(q.size() == maxSize) {
+                    add(e);
+                }
+            }
         }
+        q.add(e);
+        minLock.notify();
+
     }
 
-    public T pop() {
-        synchronized (this) {
-            return q.size() != 0 ? q.poll() : null;
+    public synchronized T pop() {
+        while (q.size() == 0) {
+            try {
+                minLock.wait();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+                if(q.size() == 0) {
+                    pop();
+                }
+            }
         }
+        T poll = q.poll();
+        maxLock.notify();
+        return poll;
     }
 
 
-    public T peek() {
-        synchronized (this) {
-            return q.size() != 0 ? q.peek() : null;
-        }
-    }
-
-    public int size() {
-        synchronized (this) {
-            return q.size();
-        }
+    public synchronized int size() {
+        return q.size();
     }
 }
